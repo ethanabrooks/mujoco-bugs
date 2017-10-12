@@ -2,7 +2,7 @@
 /home/ethanbro/zero_shot/environment
 glfw.init()
 Creating window glfw
-window = glfw.create_window(
+window = glfw.create_window(10, 10, "render", None, None)
 sim.forward()
 mjr_makeContext(self._model_ptr, &self._con, mjFONTSCALE_150)
 ERROR: GLEW initalization error: Missing GL version
