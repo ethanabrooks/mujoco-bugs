@@ -1,0 +1,10 @@
+/home/ethanbro/virtualenvs/zero_shot/bin/python3.5 viewer.py 'models/pick_and_place.xml'
+/home/ethanbro/zero_shot/environment
+glfw.init()
+Creating window glfw
+window = glfw.create_window(
+sim.forward()
+mjr_makeContext(self._model_ptr, &self._con, mjFONTSCALE_150)
+ERROR: GLEW initalization error: Missing GL version
+
+Press Enter to exit ...
