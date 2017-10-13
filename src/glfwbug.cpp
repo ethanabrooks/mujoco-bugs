@@ -16,4 +16,5 @@ int main(int argc, const char** argv) {
   m = mj_loadXML(argv[1], 0, error, 1000);
   mjr_makeContext(m, &c, mjFONTSCALE_150);
   mjr_freeContext(&c);
+  printf("done");
 }
