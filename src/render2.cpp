@@ -122,20 +122,15 @@ int main(int argc, const char** argv)
       if( con.currentBuffer!=mjFB_OFFSCREEN )
           printf("Warning: offscreen rendering not supported, using default/window framebuffer\n");
 
-      // render scene in offscreen buffer
       mjr_render(rect, &scn, &con);
-
-      // read rgb and depth buffers
       mjr_readPixels(rgb, depth, rect, &con);
-
-      // write rgb image to file
       fwrite(rgb, 3, W*H, fp);
 
-      //glfwMakeContextCurrent(window);
-      //mjr_setBuffer(mjFB_WINDOW, &con);
-      //if( con.currentBuffer!=mjFB_WINDOW )
-          //printf("Warning: rendering not supported, using default/window framebuffer\n");
-      //mjr_render(window_rect, &scn, &con);
+      glfwMakeContextCurrent(window);
+      mjr_setBuffer(mjFB_WINDOW, &con);
+      if( con.currentBuffer!=mjFB_WINDOW )
+          printf("Warning: rendering not supported, using default/window framebuffer\n");
+      mjr_render(window_rect, &scn, &con);
 
       // advance simulation
       mj_step(m, d);
