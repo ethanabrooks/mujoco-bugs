@@ -95,8 +95,13 @@ int main(int argc, const char** argv)
     // main loop
     double frametime = 0;
     int framecount = 0;
-    while( !glfwWindowShouldClose(window) )
+    //while( !glfwWindowShouldClose(window) )
+    for( int i = 0; i < 10; i++)
     {
+
+      cam.type = mjCAMERA_FIXED; 
+      cam.fixedcamid = 0; 
+
       // update abstract scene
       mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
 
@@ -116,6 +121,12 @@ int main(int argc, const char** argv)
 
       // write rgb image to file
       fwrite(rgb, 3, W*H, fp);
+
+      cam.type = mjCAMERA_FREE; 
+      cam.fixedcamid = -1; 
+
+      // update abstract scene
+      mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
 
       // make context current
       glfwMakeContextCurrent(window);
