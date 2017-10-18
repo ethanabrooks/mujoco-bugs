@@ -140,7 +140,7 @@ int main(int argc, const char** argv)
       // advance simulation
       mj_step(m, d);
 
-      //glfwSwapBuffers(window);
+      glfwSwapBuffers(window);
     }
     printf("\n");
 
