@@ -2,3 +2,5 @@ MUJOCO_LOG.TXT
 build/
 .idea
 mjkey.txt
+rgb.out
+video.mp4
