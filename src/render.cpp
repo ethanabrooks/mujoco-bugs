@@ -67,13 +67,20 @@ int main(int argc, const char** argv)
         mju_error("Could not open rgbfile for writing");
 
     // main loop
-    for( int i = 0; i < 100; i++) {
+    for( int i = 0; i < 50; i++) {
+      cam.fixedcamid = 0;
+      cam.type = mjCAMERA_FIXED;
       mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
 
       // write offscreen-rendered pixels to file
       mjr_render(window_rect, &scn, &con);
       mjr_readPixels(rgb, NULL, window_rect, &con);
       fwrite(rgb, 3, W*H, fp);
+
+      cam.fixedcamid = -1;
+      cam.type = mjCAMERA_FREE;
+      mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
+      mjr_render(window_rect, &scn, &con);
 
       glfwSwapBuffers(window);
       mj_step(m, d);
