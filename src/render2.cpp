@@ -116,7 +116,6 @@ int main(int argc, const char** argv)
     //while (1) {
       mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
 
-      /*
       glfwMakeContextCurrent(offscreen);
 
       // set rendering to offscreen buffer
@@ -124,6 +123,7 @@ int main(int argc, const char** argv)
       if( con.currentBuffer!=mjFB_OFFSCREEN )
           printf("Warning: offscreen rendering not supported, using default/window framebuffer\n");
 
+      /*
       // render scene in offscreen buffer
       mjr_render(rect, &scn, &con);
 
@@ -132,6 +132,7 @@ int main(int argc, const char** argv)
 
       // write rgb image to file
       fwrite(rgb, 3, W*H, fp);
+      */
 
       glfwMakeContextCurrent(window);
 
@@ -139,7 +140,6 @@ int main(int argc, const char** argv)
       mjr_setBuffer(mjFB_WINDOW, &con);
       if( con.currentBuffer!=mjFB_WINDOW )
           printf("Warning: rendering not supported, using default/window framebuffer\n");
-      */
 
       // render scene in offscreen buffer
       mjr_render(window_rect, &scn, &con);
