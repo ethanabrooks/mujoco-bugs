@@ -50,8 +50,8 @@ int main(int argc, const char** argv)
     // create invisible window, single-buffered
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
-    GLFWwindow* offscreen = glfwCreateWindow(800, 800, "Invisible window", NULL, NULL);
-    if( !offscreen )
+    GLFWwindow* offscreen_window = glfwCreateWindow(800, 800, "Invisible window", NULL, NULL);
+    if( !offscreen_window )
         mju_error("Could not create GLFW window");
 
     // create invisible window, single-buffered
@@ -89,16 +89,16 @@ int main(int argc, const char** argv)
     //cam.lookat[1] = m->stat.center[1];
     //cam.lookat[2] = m->stat.center[2];
     //cam.distance = 1.5 * m->stat.extent;
-    //cam.fixedcamid = 0;
-    //cam.type = mjCAMERA_FIXED;
+    cam.fixedcamid = 0;
+    cam.type = mjCAMERA_FIXED;
 
     // get size of active renderbuffer
     mjrRect rect =  mjr_maxViewport(&con);
     int W = rect.width;
     int H = rect.height;
 
-    mjrRect window_rect = {0, 0, 0, 0};
-    glfwGetFramebufferSize(window, &window_rect.width, &window_rect.height);
+    mjrRect viewport = {0, 0, 0, 0};
+    glfwGetFramebufferSize(window, &viewport.width, &viewport.height);
 
     // allocate rgb and depth buffers
     unsigned char* rgb = (unsigned char*)malloc(3*W*H);
@@ -112,11 +112,13 @@ int main(int argc, const char** argv)
         mju_error("Could not open rgbfile for writing");
 
     // main loop
+    double frametime = 0;
+    int framecount = 0;
     for( int i = 0; i < 100; i++) {
-    //while (1) {
-      mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
+      // render new frame if it is time (or first frame)
+      // update abstract scene
 
-      glfwMakeContextCurrent(offscreen);
+      mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
 
       // set rendering to offscreen buffer
       mjr_setBuffer(mjFB_OFFSCREEN, &con);
@@ -132,20 +134,11 @@ int main(int argc, const char** argv)
       // write rgb image to file
       fwrite(rgb, 3, W*H, fp);
 
-      glfwMakeContextCurrent(window);
-
-      // set rendering to offscreen buffer
-      mjr_setBuffer(mjFB_WINDOW, &con);
-      if( con.currentBuffer!=mjFB_WINDOW )
-          printf("Warning: rendering not supported, using default/window framebuffer\n");
-
-      // render scene in offscreen buffer
-      mjr_render(window_rect, &scn, &con);
+      // save simulation time
+      frametime = d->time;
 
       // advance simulation
       mj_step(m, d);
-
-      glfwSwapBuffers(window);
     }
     printf("\n");
 
