@@ -62,7 +62,7 @@ int main(int argc, const char** argv)
         mju_error("Could not create GLFW window");
 
     // make context current
-    glfwMakeContextCurrent(offscreen);
+    glfwMakeContextCurrent(window);
 
     // activate
     mj_activate("mjkey.txt");
