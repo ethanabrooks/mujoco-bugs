@@ -38,12 +38,6 @@ void closeMuJoCo(void)
 
 int main(int argc, const char** argv)
 {
-
-    // parse numeric arguments
-    double duration = 10, fps = 30;
-
-    // initialize OpenGL and MuJoCo
-    // init GLFW
     if( !glfwInit() )
         mju_error("Could not initialize GLFW");
 
@@ -54,26 +48,20 @@ int main(int argc, const char** argv)
     if( !offscreen )
         mju_error("Could not create GLFW window");
 
-    // create invisible window, single-buffered
+    // create visible window, double-buffered
     glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
     GLFWwindow* window = glfwCreateWindow(800, 800, "Visible window", NULL, NULL);
     if( !window )
         mju_error("Could not create GLFW window");
 
-    // make context current
     glfwMakeContextCurrent(window);
-
-    // activate
     mj_activate("mjkey.txt");
 
-    // load and compile
-    char error[1000] = "Could not load binary model";
+    char error[1000] = "Could not load xml model";
     m = mj_loadXML("humanoid.xml", 0, error, 1000);
     if( !m )
         mju_error_s("Load model error: %s", error);
-
-    // make data, run one computation to initialize all fields
     d = mj_makeData(m);
     mj_forward(m, d);
 
@@ -84,26 +72,22 @@ int main(int argc, const char** argv)
     mjr_defaultContext(&con);
     mjr_makeContext(m, &con, 200);
 
-    // center and scale view
-    //cam.lookat[0] = m->stat.center[0];
-    //cam.lookat[1] = m->stat.center[1];
-    //cam.lookat[2] = m->stat.center[2];
-    //cam.distance = 1.5 * m->stat.extent;
-    //cam.fixedcamid = 0;
-    //cam.type = mjCAMERA_FIXED;
+    // select camera
+    cam.fixedcamid = 0;
+    cam.type = mjCAMERA_FIXED;
 
     // get size of active renderbuffer
     mjrRect rect =  mjr_maxViewport(&con);
     int W = rect.width;
     int H = rect.height;
 
+    // get size of window
     mjrRect window_rect = {0, 0, 0, 0};
     glfwGetFramebufferSize(window, &window_rect.width, &window_rect.height);
 
     // allocate rgb and depth buffers
     unsigned char* rgb = (unsigned char*)malloc(3*W*H);
-    float* depth = (float*)malloc(sizeof(float)*W*H);
-    if( !rgb || !depth )
+    if( !rgb )
         mju_error("Could not allocate buffers");
 
     // create output rgb file
@@ -115,37 +99,31 @@ int main(int argc, const char** argv)
     for( int i = 0; i < 100; i++) {
       mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
 
-      glfwMakeContextCurrent(offscreen);
-
       // set rendering to offscreen buffer
+      glfwMakeContextCurrent(offscreen);
       mjr_setBuffer(mjFB_OFFSCREEN, &con);
       if( con.currentBuffer!=mjFB_OFFSCREEN )
           printf("Warning: offscreen rendering not supported, using default/window framebuffer\n");
 
+      // write offscreen-rendered pixels to file
       mjr_render(rect, &scn, &con);
-      mjr_readPixels(rgb, depth, rect, &con);
+      mjr_readPixels(rgb, NULL, rect, &con);
       fwrite(rgb, 3, W*H, fp);
 
+      // render to visible window
       glfwMakeContextCurrent(window);
       mjr_setBuffer(mjFB_WINDOW, &con);
       if( con.currentBuffer!=mjFB_WINDOW )
           printf("Warning: rendering not supported, using default/window framebuffer\n");
       mjr_render(window_rect, &scn, &con);
+      glfwSwapBuffers(window);
 
       // advance simulation
       mj_step(m, d);
-
-      glfwSwapBuffers(window);
     }
-    printf("\n");
 
-    // close file, free buffers
     fclose(fp);
     free(rgb);
-    free(depth);
-
-    // close MuJoCo and OpenGL
     closeMuJoCo();
-
     return 1;
 }
