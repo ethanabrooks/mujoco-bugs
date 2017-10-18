@@ -27,4 +27,4 @@ render:
 	mkdir -p $(build)
 	rm -f rgb.out video.mp4
 	g++ -O2 -I/home/ethanbro/.mujoco/mjpro150/include -L${HOME}/.mujoco/mjpro150/bin -std=c++11 -mavx src/render.cpp -lmujoco150 -lGL -lglew ${HOME}/.mujoco/mjpro150/bin/libglfw.so.3 -o $(build)/render
-	./build/render && ffmpeg -y -f rawvideo -pixel_format rgb24 -video_size 1718x706 -framerate 60 -i rgb.out -vf "vflip" video.mp4
+	./build/render
