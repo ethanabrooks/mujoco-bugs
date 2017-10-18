@@ -21,8 +21,12 @@ bad-access-bug:
 
 clean:
 	rm -rf $(build)/
-	rm "*.c" "*.so"
+	rm "*.c" "*.so" "video.*" "*.out"
 
 render:
 	mkdir -p $(build)
 	g++ -O2 -I/home/ethanbro/.mujoco/mjpro150/include -L${HOME}/.mujoco/mjpro150/bin -std=c++11 -mavx src/render.cpp -lmujoco150 -lGL -lglew ${HOME}/.mujoco/mjpro150/bin/libglfw.so.3 -o $(build)/render
+
+render2:
+	mkdir -p $(build)
+	g++ -O2 -I/home/ethanbro/.mujoco/mjpro150/include -L${HOME}/.mujoco/mjpro150/bin -std=c++11 -mavx src/render2.cpp -lmujoco150 -lGL -lglew ${HOME}/.mujoco/mjpro150/bin/libglfw.so.3 -o $(build)/render

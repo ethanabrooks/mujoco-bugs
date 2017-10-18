@@ -51,9 +51,9 @@ int main(int argc, const char** argv)
         mju_error("Could not create GLFW window");
 
     // set context to offscreen window
-    glfwMakeContextCurrent(window);
+    //glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(offscreen);
 
-    //initMuJoCo(argv[1]);
     mj_activate("mjkey.txt");
 
     // load and compile
@@ -72,6 +72,9 @@ int main(int argc, const char** argv)
     mjv_defaultOption(&opt);
     mjr_defaultContext(&con);
     mjr_makeContext(m, &con, 200);
+
+    cam.type = mjCAMERA_FIXED; 
+    cam.fixedcamid = 1; 
 
     // get size of active renderbuffer
     mjrRect rect =  mjr_maxViewport(&con);
@@ -95,12 +98,8 @@ int main(int argc, const char** argv)
     // main loop
     double frametime = 0;
     int framecount = 0;
-    //while( !glfwWindowShouldClose(window) )
-    for( int i = 0; i < 10; i++)
+    for( int i = 0; i < 100; i++)
     {
-
-      cam.type = mjCAMERA_FIXED; 
-      cam.fixedcamid = 0; 
 
       // update abstract scene
       mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
@@ -122,8 +121,9 @@ int main(int argc, const char** argv)
       // write rgb image to file
       fwrite(rgb, 3, W*H, fp);
 
+      /*
       cam.type = mjCAMERA_FREE; 
-      cam.fixedcamid = -1; 
+      cam.fixedcamid = -1;
 
       // update abstract scene
       mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
@@ -138,12 +138,12 @@ int main(int argc, const char** argv)
 
       // render scene in window buffer
       mjr_render(viewport, &scn, &con);
+      */
 
       // advance simulation
       mj_step(m, d);
-      glfwSwapBuffers(window);
+      //glfwSwapBuffers(window);
     }
-    printf("\n");
 
     // close file, free buffers
     fclose(fp);
@@ -156,7 +156,7 @@ int main(int argc, const char** argv)
     mjr_freeContext(&con);
     mjv_freeScene(&scn);
     mj_deactivate();
-    glfwTerminate();
+    //glfwTerminate();
 
     return 1;
 }
