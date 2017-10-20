@@ -27,6 +27,7 @@ int main(int argc, const char** argv)
 
     char error[1000] = "Could not load xml model";
     m = mj_loadXML("/home/ethanbro/zero_shot/environment/models/navigate.xml", 0, error, 1000);
+    //m = mj_loadXML("humanoid.xml", 0, error, 1000);
     if( !m )
         mju_error_s("Load model error: %s", error);
     d = mj_makeData(m);
@@ -62,8 +63,8 @@ int main(int argc, const char** argv)
     glfwGetFramebufferSize(window, &viewport.width, &viewport.height);
 
     mjrRect viewport2 = {0, 0, 0, 0};
-    viewport2.width = 800;
-    viewport2.height = 800;
+    viewport2.width = 400;
+    viewport2.height = 400;
     int W = viewport2.width;
     int H = viewport2.height;
 
@@ -77,21 +78,31 @@ int main(int argc, const char** argv)
     if( !fp )
         mju_error("Could not open rgbfile for writing");
 
+    mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
     // main loop
     for( int i = 0; i < 50; i++) {
-      cam.fixedcamid = 0;
-      cam.type = mjCAMERA_FIXED;
-      glfwMakeContextCurrent(window);
-      mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
+      cam.fixedcamid = -1;
+      cam.type = mjCAMERA_FREE;
+      mjv_updateCamera(m, d, &cam, &scn);
+      //mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
+      //glfwMakeContextCurrent(window);
 
       // write offscreen-rendered pixels to file
+      mjr_setBuffer(mjFB_OFFSCREEN, &con);
+      if (con.currentBuffer!=mjFB_OFFSCREEN)
+        printf("Warning: offscreen rendering not supported, using default/window framebuffer\n");
       mjr_render(viewport2, &scn, &con);
+      // read_pixels
       mjr_readPixels(rgb, NULL, viewport2, &con);
       fwrite(rgb, 3, W*H, fp);
 
-      cam.fixedcamid = -1;
-      cam.type = mjCAMERA_FREE;
-      mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
+      cam.fixedcamid = 0;
+      cam.type = mjCAMERA_FIXED;
+      mjv_updateCamera(m, d, &cam, &scn);
+      //mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
+      mjr_setBuffer(mjFB_WINDOW, &con);
+      if (con.currentBuffer!=mjFB_WINDOW)
+        printf("Warning: unable to render in window.\n"); 
       mjr_render(viewport, &scn, &con);
 
       glfwSwapBuffers(window);
