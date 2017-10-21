@@ -26,8 +26,7 @@ int main(int argc, const char** argv)
     mj_activate("mjkey.txt");
 
     char error[1000] = "Could not load xml model";
-    m = mj_loadXML("/home/ethanbro/zero_shot/environment/models/navigate.xml", 0, error, 1000);
-    //m = mj_loadXML("humanoid.xml", 0, error, 1000);
+    m = mj_loadXML("humanoid.xml", 0, error, 1000);
     if( !m )
         mju_error_s("Load model error: %s", error);
     d = mj_makeData(m);
@@ -42,21 +41,15 @@ int main(int argc, const char** argv)
         mju_error("Could not initialize GLFW");
 
     // create visible window, double-buffered
-    //glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
-    //glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
     GLFWwindow* window = glfwCreateWindow(3440, 1440, "Visible window", NULL, NULL);
     if( !window )
         mju_error("Could not create GLFW window");
     glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(window);
     mj_forward(m, d);
+    mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
 
     mjr_makeContext(m, &con, 200);
-    mjr_setBuffer(mjFB_WINDOW, &con);
-    glfwMakeContextCurrent(window);
-
-    mjr_freeContext(&con);
-    mjr_makeContext(m, &con, mjFONTSCALE_150);
-    mjr_setBuffer(mjFB_WINDOW, &con);
 
     // get size of window
     mjrRect viewport = {0, 0, 0, 0};
@@ -78,13 +71,12 @@ int main(int argc, const char** argv)
     if( !fp )
         mju_error("Could not open rgbfile for writing");
 
-    mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
     // main loop
-    for( int i = 0; i < 50; i++) {
+    for( int i = 0; i < 500; i++) {
       cam.fixedcamid = -1;
       cam.type = mjCAMERA_FREE;
       mjv_updateCamera(m, d, &cam, &scn);
-      //mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
+      mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
       //glfwMakeContextCurrent(window);
 
       // write offscreen-rendered pixels to file
