@@ -51,10 +51,12 @@ int main(int argc, const char** argv)
     mjr_makeContext(m, &con, 200);
 
     // get size of window
-    mjrRect window_rect = {0, 0, 0, 0};
-    glfwGetFramebufferSize(window, &window_rect.width, &window_rect.height);
-    int W = window_rect.width;
-    int H = window_rect.height;
+    //int W = window_rect.width;
+    //int H = window_rect.height;
+
+    mjrRect viewport =  mjr_maxViewport(&con);
+    int W = viewport.width;
+    int H = viewport.height;
 
     // allocate rgb and depth buffers
     unsigned char* rgb = (unsigned char*)malloc(3*W*H);
@@ -67,24 +69,33 @@ int main(int argc, const char** argv)
         mju_error("Could not open rgbfile for writing");
 
     // main loop
-    for( int i = 0; i < 50; i++) {
+    for( int i = 0; i < 500; i++) {
+
+      mjrRect window_rect = {0, 0, 0, 0};
+      glfwGetFramebufferSize(window, &window_rect.width, &window_rect.height);
       cam.fixedcamid = 0;
       cam.type = mjCAMERA_FIXED;
-      mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
-
       // write offscreen-rendered pixels to file
-      mjr_render(window_rect, &scn, &con);
-      mjr_readPixels(rgb, NULL, window_rect, &con);
+      mjr_setBuffer(mjFB_OFFSCREEN, &con);
+      if( con.currentBuffer!=mjFB_OFFSCREEN )
+          printf("Warning: offscreen rendering not supported, using default/window framebuffer\n");
+      mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
+      mjr_render(viewport, &scn, &con);
+      mjr_readPixels(rgb, NULL, viewport, &con);
       fwrite(rgb, 3, W*H, fp);
 
       cam.fixedcamid = -1;
       cam.type = mjCAMERA_FREE;
+      mjr_setBuffer(mjFB_WINDOW, &con);
+      if( con.currentBuffer!=mjFB_WINDOW )
+          printf("Warning: window rendering not supported\n");
       mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
       mjr_render(window_rect, &scn, &con);
 
       glfwSwapBuffers(window);
       mj_step(m, d);
     }
+    printf("ffmpeg -f rawvideo -pixel_format rgb24 -video_size %dx%d -framerate 60 -i rgb.out -vf 'vflip' video.mp4\n", H, W);
 
     fclose(fp);
     free(rgb);
