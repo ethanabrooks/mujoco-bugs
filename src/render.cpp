@@ -23,25 +23,27 @@ mjrContext con;
 
 int main(int argc, const char** argv)
 {
-    mj_activate("mjkey.txt");
+    //mj_activate("mjkey.txt");
 
-    char error[1000] = "Could not load xml model";
-    m = mj_loadXML("humanoid.xml", 0, error, 1000);
-    if( !m )
-        mju_error_s("Load model error: %s", error);
-    d = mj_makeData(m);
+    //char error[1000] = "Could not load xml model";
+    //m = mj_loadXML("humanoid.xml", 0, error, 1000);
+    //if( !m )
+        //mju_error_s("Load model error: %s", error);
+    //d = mj_makeData(m);
 
     // initialize MuJoCo visualization
-    mjv_makeScene(&scn, 1000);
-    mjv_defaultCamera(&cam);
-    mjv_defaultOption(&opt);
-    mjr_defaultContext(&con);
+    //mjv_makeScene(&scn, 1000);
+    //mjv_defaultCamera(&cam);
+    //mjv_defaultOption(&opt);
+    //mjr_defaultContext(&con);
 
     if( !glfwInit() )
         mju_error("Could not initialize GLFW");
 
+    printf("before\n");
     // create visible window, double-buffered
     GLFWwindow* window = glfwCreateWindow(3440, 1440, "Visible window", NULL, NULL);
+    printf("after\n");
     if( !window )
         mju_error("Could not create GLFW window");
     glfwMakeContextCurrent(window);
